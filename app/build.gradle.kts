@@ -33,6 +33,12 @@ dependencies {
     // slf4j
     implementation("org.slf4j:slf4j-simple:2.0.16")
 
+    // https://mvnrepository.com/artifact/com.zaxxer/HikariCP
+    implementation("com.zaxxer:HikariCP:5.1.0")
+
+    // https://mvnrepository.com/artifact/com.h2database/h2
+    testImplementation("com.h2database:h2:2.2.224")
+
 }
 
 tasks.test {
