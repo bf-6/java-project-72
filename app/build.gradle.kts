@@ -26,18 +26,16 @@ dependencies {
     // jupiter
     testImplementation(platform("org.junit:junit-bom:5.10.0"))
     testImplementation("org.junit.jupiter:junit-jupiter")
-
     // javalin
     implementation("io.javalin:javalin:6.3.0")
-
     // slf4j
     implementation("org.slf4j:slf4j-simple:2.0.16")
-
     // https://mvnrepository.com/artifact/com.zaxxer/HikariCP
     implementation("com.zaxxer:HikariCP:5.1.0")
 
-    // https://mvnrepository.com/artifact/com.h2database/h2
-    testImplementation("com.h2database:h2:2.2.224")
+    implementation("com.h2database:h2:2.2.224")
+    // https://mvnrepository.com/artifact/org.postgresql/postgresql
+    implementation("org.postgresql:postgresql:42.7.3")
 
 }
 

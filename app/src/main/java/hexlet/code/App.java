@@ -35,14 +35,19 @@ public class App {
                 .getOrDefault("JDBC_DATABASE_URL", "jdbc:h2:mem:project;DB_CLOSE_DELAY=-1;");
         hikariConfig.setJdbcUrl(dataBase);
 
+        if (dataBase.contains("postgresql")) {
+            hikariConfig.setDriverClassName("org.postgresql.Driver");
+        }
+
         var dataSource = new HikariDataSource(hikariConfig);
-        var sql = readResourceFile("url.sql");
+        var sql = readResourceFile("urls.sql");
 
         log.info(sql);
         try (var connection = dataSource.getConnection();
              var statement = connection.createStatement()) {
             statement.execute(sql);
         }
+
         BaseRepository.dataSource = dataSource;
 
         var app = Javalin.create(config -> {
