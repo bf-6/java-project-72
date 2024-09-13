@@ -35,9 +35,10 @@ public class App {
                 .getOrDefault("JDBC_DATABASE_URL", "jdbc:h2:mem:project;DB_CLOSE_DELAY=-1;");
         hikariConfig.setJdbcUrl(dataBase);
 
-//        if (dataBase.contains("postgresql")) {
-//            hikariConfig.setDriverClassName("org.postgresql.Driver");
-//        }
+        if (dataBase.contains("postgresql")) {
+            hikariConfig.setDriverClassName("org.postgresql.Driver");
+        }
+
 
         var dataSource = new HikariDataSource(hikariConfig);
         var sql = readResourceFile("urls.sql");
