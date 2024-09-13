@@ -33,12 +33,11 @@ public class App {
         var hikariConfig = new HikariConfig();
         var dataBase = System.getenv()
                 .getOrDefault("JDBC_DATABASE_URL", "jdbc:h2:mem:project;DB_CLOSE_DELAY=-1;");
-        hikariConfig.setJdbcUrl(dataBase);
-
         if (dataBase.contains("postgresql")) {
             hikariConfig.setDriverClassName("org.postgresql.Driver");
         }
 
+        hikariConfig.setJdbcUrl(dataBase);
 
         var dataSource = new HikariDataSource(hikariConfig);
         var sql = readResourceFile("urls.sql");
@@ -48,7 +47,6 @@ public class App {
              var statement = connection.createStatement()) {
             statement.execute(sql);
         }
-
         BaseRepository.dataSource = dataSource;
 
         var app = Javalin.create(config -> {
