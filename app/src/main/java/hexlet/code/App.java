@@ -38,6 +38,7 @@ public class App {
         }
 
         hikariConfig.setJdbcUrl(dataBase);
+        log.info("jdbcUrl: " + dataBase);
 
         var dataSource = new HikariDataSource(hikariConfig);
         var sql = readResourceFile("urls.sql");
