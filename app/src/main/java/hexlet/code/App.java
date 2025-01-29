@@ -6,24 +6,21 @@ import gg.jte.ContentType;
 import gg.jte.TemplateEngine;
 import gg.jte.resolve.ResourceCodeResolver;
 import hexlet.code.dto.BasePage;
-import hexlet.code.dto.MainPage;
 import hexlet.code.dto.urls.UrlPage;
 import hexlet.code.dto.urls.UrlsPage;
 import hexlet.code.model.Url;
 import hexlet.code.repository.BaseRepository;
 import hexlet.code.repository.UrlRepository;
 import io.javalin.Javalin;
+import io.javalin.http.NotFoundResponse;
 import io.javalin.rendering.template.JavalinJte;
-import io.javalin.validation.ValidationException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.hc.core5.net.URIBuilder;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.net.MalformedURLException;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
@@ -89,18 +86,15 @@ public class App {
         app.get("/urls/build", ctx -> {
             var page = new BasePage();
             page.setFlash(ctx.consumeSessionAttribute("flash")); // ОТРАБОТКА ФЛЕШ СООБЩЕНИЙ
-            ctx.render("urls/build.jte");
+            ctx.render("urls/build.jte", model("page", page));
         });
 
         app.get("/urls/{id}", ctx -> {
-            var id = ctx.pathParam("id");
-            var listUrls = UrlRepository.getEntities();
+            var id = ctx.pathParamAsClass("id", Long.class).get();
 
-            var u = listUrls.stream()
-                    .filter(url -> url.getId() == Integer.parseInt(id))
-                    .findFirst();
-
-            UrlPage page = new UrlPage(u.get());
+            var url = UrlRepository.find(id)
+                    .orElseThrow(() -> new NotFoundResponse("Entity with id = " + id + " not found"));
+            var page = new UrlPage(url);
 
             ctx.render("urls/show.jte", model("page", page));
 
@@ -117,9 +111,16 @@ public class App {
 
                 URL url = new URIBuilder().setScheme(protocol).setHost(host).setPort(port).build().toURL();
 
-                var url1 = new Url(String.valueOf(url));
-                UrlRepository.save(url1);
+                if (UrlRepository.search(String.valueOf(url)).isEmpty()) {
+                    var currentUrl = new Url(String.valueOf(url));
+                    UrlRepository.save(currentUrl);
+                } else {
+                    throw new IOException("Страница уже существует");
+                }
                 ctx.sessionAttribute("flash", "Страница успешно добавлена"); // ДОБАВЛЕНИЕ ФЛЕШ СООБЩЕНИЯ О ДОБАВЛЕННИ НОВОГО САЙТА
+                ctx.redirect("/urls");
+            } catch (IOException e) {
+                ctx.sessionAttribute("flash", e.getMessage());
                 ctx.redirect("/urls");
             } catch (Exception e) {
                 ctx.sessionAttribute("flash", "Некорректный URL");

@@ -5,8 +5,8 @@ import hexlet.code.model.Url;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -17,17 +17,33 @@ public class UrlRepository extends BaseRepository {
         try (var conn = dataSource.getConnection();
             var stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             stmt.setString(1, url.getName());
-            var createdAt = LocalDateTime.now();
-            stmt.setTimestamp(2, Timestamp.valueOf(createdAt));
-
+            Date currentDate = new Date();
+            Timestamp timestamp = new Timestamp(currentDate.getTime());
+            stmt.setTimestamp(2, timestamp);
             stmt.executeUpdate();
             var generatedKeys = stmt.getGeneratedKeys();
             if (generatedKeys.next()) {
                 url.setId(generatedKeys.getLong(1));
-                url.setCreatedAt(createdAt);
             } else {
                 throw new SQLException("DB have not returned an id after saving an entity");
             }
+        }
+    }
+
+    public static Optional<Url> search(String name) throws SQLException {
+        var sql = "SELECT * FROM urls WHERE name = ?";
+        try (var connection = dataSource.getConnection();
+             var stmt = connection.prepareStatement(sql)) {
+            stmt.setString(1, name);
+            var resUrls = stmt.executeQuery();
+            if (resUrls.next()) {
+                var createdAt = resUrls.getTimestamp("created_at");
+                var id = resUrls.getLong("id");
+                var url = new Url(name, createdAt);
+                url.setId(id);
+                return Optional.of(url);
+            }
+            return Optional.empty();
         }
     }
 
@@ -39,7 +55,7 @@ public class UrlRepository extends BaseRepository {
             var resultSet = stmt.executeQuery();
             if (resultSet.next()) {
                 var name = resultSet.getString("name");
-                var createdAt = resultSet.getTimestamp("created_at").toLocalDateTime();
+                var createdAt = resultSet.getTimestamp("created_at");
                 var url = new Url(name);
                 url.setId(id);
                 url.setCreatedAt(createdAt);
@@ -58,7 +74,7 @@ public class UrlRepository extends BaseRepository {
             while (resultSet.next()) {
                 var id = resultSet.getLong("id");
                 var name = resultSet.getString("name");
-                var createdAt = resultSet.getTimestamp("created_at").toLocalDateTime();
+                var createdAt = resultSet.getTimestamp("created_at");
 
                 var url = new Url(name);
                 url.setId(id);
