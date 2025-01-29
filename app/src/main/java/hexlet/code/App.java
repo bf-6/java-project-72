@@ -5,21 +5,31 @@ import com.zaxxer.hikari.HikariDataSource;
 import gg.jte.ContentType;
 import gg.jte.TemplateEngine;
 import gg.jte.resolve.ResourceCodeResolver;
-//import hexlet.code.controller.UrlController;
-//import hexlet.code.model.Url;
-//import hexlet.code.dto.UserPage;
+import hexlet.code.dto.BasePage;
+import hexlet.code.dto.MainPage;
+import hexlet.code.dto.urls.UrlPage;
+import hexlet.code.dto.urls.UrlsPage;
+import hexlet.code.model.Url;
 import hexlet.code.repository.BaseRepository;
-//import hexlet.code.repository.UrlRepository;
+import hexlet.code.repository.UrlRepository;
 import io.javalin.Javalin;
 import io.javalin.rendering.template.JavalinJte;
+import io.javalin.validation.ValidationException;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.hc.core5.net.URIBuilder;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 import java.util.stream.Collectors;
+
+import static io.javalin.rendering.template.TemplateUtil.model;
 
 @Slf4j
 public class App {
@@ -35,6 +45,8 @@ public class App {
             return reader.lines().collect(Collectors.joining("\n"));
         }
     }
+
+    //-------------------------------------------------------------------------------
 
     public static Javalin getApp() throws SQLException, IOException {
 
@@ -63,35 +75,66 @@ public class App {
             config.fileRenderer(new JavalinJte(createTemplateEngine()));
         });
 
-        app.get("/", ctx -> ctx.render("urls/index.jte"));
-        app.get("/hello", ctx -> {
-            var name = ctx.queryParam("name");
-            ctx.result("Hello, " + name + "!");
-        });
-        app.get("/courses/{courseId}/lessons/{id}", ctx -> {
-            var courseId = ctx.pathParam("courseId");
-            var lessonId =  ctx.pathParam("id");
-            ctx.result("Course ID: " + courseId + " Lesson ID: " + lessonId);
+        //-------------------------------------------------------------------------------
+
+        app.get("/", ctx -> ctx.render("urls/build.jte"));
+
+        app.get("/urls", ctx -> {
+            var listUrls = UrlRepository.getEntities();
+            var page = new UrlsPage(listUrls);
+            page.setFlash(ctx.consumeSessionAttribute("flash")); // ОТРАБОТКА ФЛЕШ СООБЩЕНИЙ
+            ctx.render("urls/index.jte", model("page", page));
         });
 
         app.get("/urls/build", ctx -> {
-            ctx.render("build.jte");
+            var page = new BasePage();
+            page.setFlash(ctx.consumeSessionAttribute("flash")); // ОТРАБОТКА ФЛЕШ СООБЩЕНИЙ
+            ctx.render("urls/build.jte");
         });
 
-        /*app.get("/", ctx ->  ctx.render("build.jte"));
+        app.get("/urls/{id}", ctx -> {
+            var id = ctx.pathParam("id");
+            var listUrls = UrlRepository.getEntities();
 
-        app.get("/urls", UrlController::index);
+            var u = listUrls.stream()
+                    .filter(url -> url.getId() == Integer.parseInt(id))
+                    .findFirst();
+
+            UrlPage page = new UrlPage(u.get());
+
+            ctx.render("urls/show.jte", model("page", page));
+
+        });
 
         app.post("/urls", ctx -> {
-            var name = ctx.formParam("name");
-            var url = new Url(name);
-            UrlRepository.save(url);
-            ctx.redirect("/urls");
-        });*/
+            var name = ctx.formParamAsClass("name", String.class).get();
+
+            try {
+                URL uri = new URI(name).toURL();
+                var protocol = uri.getProtocol();
+                var port = uri.getPort();
+                var host = uri.getHost();
+
+                URL url = new URIBuilder().setScheme(protocol).setHost(host).setPort(port).build().toURL();
+
+                var url1 = new Url(String.valueOf(url));
+                UrlRepository.save(url1);
+                ctx.sessionAttribute("flash", "Страница успешно добавлена"); // ДОБАВЛЕНИЕ ФЛЕШ СООБЩЕНИЯ О ДОБАВЛЕННИ НОВОГО САЙТА
+                ctx.redirect("/urls");
+            } catch (Exception e) {
+                ctx.sessionAttribute("flash", "Некорректный URL");
+                ctx.redirect("/urls/build");
+            }
+        });
+
+
+        //-------------------------------------------------------------------------------
 
         return app;
 
     }
+
+    //-------------------------------------------------------------------------------
 
     private static TemplateEngine createTemplateEngine() {
         ClassLoader classLoader = App.class.getClassLoader();
