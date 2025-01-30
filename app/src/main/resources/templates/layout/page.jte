@@ -26,6 +26,4 @@ ${content}
     <a href="https://github.com/bf-6">Мой Гитхаб</a>
 </footer>
 </body>
-</html>footer>
-</body>
 </html>
