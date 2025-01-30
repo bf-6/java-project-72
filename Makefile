@@ -10,7 +10,7 @@ install:
 	make -C app install
 
 run-dist:
-	make -C run-dist
+	make -C app dev
 
 test:
 	make -C app test
