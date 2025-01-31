@@ -23,6 +23,7 @@ public class UrlController {
         var listUrls = UrlRepository.getEntities();
         var page = new UrlsPage(listUrls);
         page.setFlash(ctx.consumeSessionAttribute("flash")); // ОТРАБОТКА ФЛЕШ СООБЩЕНИЙ
+        page.setFlashType(ctx.consumeSessionAttribute("flash-type"));
         ctx.render("urls/index.jte", model("page", page));
     }
 
@@ -37,6 +38,7 @@ public class UrlController {
     public static void build(Context ctx) {
         var page = new BasePage();
         page.setFlash(ctx.consumeSessionAttribute("flash")); // ОТРАБОТКА ФЛЕШ СООБЩЕНИЙ
+        page.setFlashType(ctx.consumeSessionAttribute("flash-type"));
         ctx.render("urls/build.jte", model("page", page));
     }
 
@@ -59,12 +61,15 @@ public class UrlController {
             }
             // ДОБАВЛЕНИЕ ФЛЕШ СООБЩЕНИЯ О ДОБАВЛЕННИ НОВОГО САЙТА
             ctx.sessionAttribute("flash", "Страница успешно добавлена");
+            ctx.sessionAttribute("flash-type", "success");
             ctx.redirect(NamedRoutes.urlsPath());
         } catch (IOException e) {
             ctx.sessionAttribute("flash", e.getMessage());
+            ctx.sessionAttribute("flash-type", "info");
             ctx.redirect(NamedRoutes.urlsPath());
         } catch (Exception e) {
             ctx.sessionAttribute("flash", "Некорректный URL");
+            ctx.sessionAttribute("flash-type", "danger");
             ctx.redirect(NamedRoutes.buildPath());
         }
     }

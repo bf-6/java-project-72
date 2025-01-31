@@ -10,7 +10,6 @@ import java.sql.Timestamp;
 @Setter
 @ToString
 public class Url {
-
     private Long id;
     private String name;
     private Timestamp createdAt;
@@ -23,5 +22,4 @@ public class Url {
     public Url(String name) {
         this.name = name;
     }
-
 }

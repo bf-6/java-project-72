@@ -6,4 +6,4 @@
 
 ### Render deploy:
 
-https://java-page-analyzer-15lc.onrender.com/
+https://java-page-analyzer-47up.onrender.com

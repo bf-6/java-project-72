@@ -5,6 +5,9 @@ import hexlet.code.repository.UrlRepository;
 import hexlet.code.util.NamedRoutes;
 import io.javalin.Javalin;
 import io.javalin.testtools.JavalinTest;
+import okhttp3.mockwebserver.MockResponse;
+import okhttp3.mockwebserver.MockWebServer;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -17,11 +20,19 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class AppTest {
 
-    Javalin app;
+    public static Javalin app;
+    public static MockWebServer mockWebServer;
 
     @BeforeEach
     public final void setUp() throws IOException, SQLException {
+        mockWebServer = new MockWebServer();
+        mockWebServer.start();
         app = App.getApp();
+    }
+
+    @AfterAll
+    public static void tearDown() throws IOException {
+        mockWebServer.shutdown();
     }
 
     @Test
@@ -69,4 +80,21 @@ public class AppTest {
             assertThat(response.code()).isEqualTo(200);
         });
     }
+
+    @Test
+    public void testCheck() {
+        JavalinTest.test(app, (server, client) -> {
+            String responseBody = "Hello, MockWebServer!";
+
+            mockWebServer.enqueue(new MockResponse().setBody(responseBody).setResponseCode(200));
+
+            String baseUrl = mockWebServer.url("/").toString();
+
+            client.post(NamedRoutes.urlsPath(), "name=" + baseUrl);
+
+            var urlsResponse = client.get(NamedRoutes.urlsPath());
+            assertThat(urlsResponse.code()).isEqualTo(200);
+            });
+    }
+
 }

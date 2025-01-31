@@ -81,6 +81,13 @@ public class App {
 
         //-------------------------------------------------------------------------------
 
+        app.post("/urls/{id}/checks", ctx -> {
+            var id = ctx.pathParamAsClass("id", Long.class).get();
+            ctx.redirect(NamedRoutes.urlPath(id));
+        });
+
+        //-------------------------------------------------------------------------------
+
         return app;
 
     }
