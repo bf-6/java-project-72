@@ -17,6 +17,7 @@ content = @`
                         <th class="col-2">Последняя проверка</th>
                         <th class="col-1">Код ответа</th>
                     </tr>
+<%--                    --%>
                     </thead>
                     <tbody>
                     @if(!page.getUrls().isEmpty())

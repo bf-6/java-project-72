@@ -94,7 +94,7 @@ public class AppTest {
 
             var urlsResponse = client.get(NamedRoutes.urlsPath());
             assertThat(urlsResponse.code()).isEqualTo(200);
-            });
+        });
     }
 
 }
