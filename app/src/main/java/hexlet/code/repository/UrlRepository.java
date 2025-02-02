@@ -13,7 +13,7 @@ import java.util.Optional;
 public class UrlRepository extends BaseRepository {
 
     public static void save(Url url) throws SQLException {
-        var sql = "INSERT INTO urls (name, created_at) VALUES (?, ?)";
+        var sql = "INSERT INTO url_checks (name, created_at) VALUES (?, ?)";
         try (var conn = dataSource.getConnection();
             var stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             stmt.setString(1, url.getName());

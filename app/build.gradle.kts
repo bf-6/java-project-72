@@ -38,17 +38,21 @@ dependencies {
     implementation("gg.jte:jte:3.1.9")
     // slf4j
     implementation("org.slf4j:slf4j-simple:2.0.16")
-    // https://mvnrepository.com/artifact/com.zaxxer/HikariCP // h2 database
+    // HikariCP // h2 database
     implementation("com.zaxxer:HikariCP:5.1.0")
     implementation("com.h2database:h2:2.2.224")
-    // https://mvnrepository.com/artifact/org.postgresql/postgresql
+    // postgresql
     implementation("org.postgresql:postgresql:42.7.3")
     // https://mvnrepository.com/artifact/org.apache.httpcomponents.client5/httpclient5
     implementation("org.apache.httpcomponents.client5:httpclient5:5.4.1")
-    // https://mvnrepository.com/artifact/com.mashape.unirest/unirest-java
+    // unirest-java
     implementation("com.mashape.unirest:unirest-java:1.4.9")
-    // https://mvnrepository.com/artifact/com.squareup.okhttp3/mockwebserver
+    // mockwebserver
     testImplementation("com.squareup.okhttp3:mockwebserver:4.12.0")
+    // jsoup
+    implementation("org.jsoup:jsoup:1.18.3")
+
+
 
 }
 
