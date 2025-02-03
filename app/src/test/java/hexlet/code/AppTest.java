@@ -1,7 +1,7 @@
 package hexlet.code;
 
 import hexlet.code.model.Url;
-import hexlet.code.repository.UrlRepository;
+import hexlet.code.repository.UrlsRepository;
 import hexlet.code.util.NamedRoutes;
 import io.javalin.Javalin;
 import io.javalin.testtools.JavalinTest;
@@ -14,6 +14,9 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.sql.SQLException;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -23,10 +26,19 @@ public class AppTest {
     public static Javalin app;
     public static MockWebServer mockWebServer;
 
+    public static String readFixture(String fileName) throws IOException {
+        Path filePath = Paths.get("src/test/resources", fileName);
+        return new String(Files.readAllBytes(filePath));
+    }
+
     @BeforeEach
     public final void setUp() throws IOException, SQLException {
         mockWebServer = new MockWebServer();
+        MockResponse mockedResponse = new MockResponse()
+                .setBody(readFixture("index.html"));
+        mockWebServer.enqueue(mockedResponse);
         mockWebServer.start();
+
         app = App.getApp();
     }
 
@@ -40,6 +52,7 @@ public class AppTest {
         JavalinTest.test(app, (server, client) -> {
             var response = client.get(NamedRoutes.mainPage());
             assertThat(response.code()).isEqualTo(200);
+            assert response.body() != null;
             assertThat(response.body().string()).contains("Анализатор страниц");
         });
     }
@@ -63,37 +76,35 @@ public class AppTest {
     @Test
     public void testCreateUrl() {
         JavalinTest.test(app, (server, client) -> {
-            var requestBody = "name=https://ru.hexlet.io/projects/72/members/41454?step=6";
+            var requestBody = "name=https://example.edu/";
             var response = client.post(NamedRoutes.urlsPath(), requestBody);
             assertThat(response.code()).isEqualTo(200);
-            assertThat(response.body().string()).contains("https://ru.hexlet.io");
+            assertThat(response.body().string()).contains("https://example.edu");
         });
     }
 
     @Test
     public void testSave() throws URISyntaxException, MalformedURLException, SQLException {
         var url = new Url("https://ru.hexlet.io");
-        UrlRepository.save(url);
+        UrlsRepository.save(url);
 
         JavalinTest.test(app, (server, client) -> {
-            var response = client.get(NamedRoutes.urlPath(UrlRepository.search(url.getName()).get().getId()));
+            var response = client.get(NamedRoutes.urlPath(UrlsRepository.findByName(url.getName()).get().getId()));
             assertThat(response.code()).isEqualTo(200);
         });
     }
 
     @Test
-    public void testCheck() {
+    public void testCheck() throws SQLException {
+
+        String mockUrl = mockWebServer.url("/").toString();
+        Url url = new Url(mockUrl);
+        UrlsRepository.save(url);
+
         JavalinTest.test(app, (server, client) -> {
-            String responseBody = "Hello, MockWebServer!";
-
-            mockWebServer.enqueue(new MockResponse().setBody(responseBody).setResponseCode(200));
-
-            String baseUrl = mockWebServer.url("/").toString();
-
-            client.post(NamedRoutes.urlsPath(), "name=" + baseUrl);
-
-            var urlsResponse = client.get(NamedRoutes.urlsPath());
-            assertThat(urlsResponse.code()).isEqualTo(200);
+            Url savedUrl = UrlsRepository.findByName(mockWebServer.url("/").toString()).orElseThrow();
+            var response = client.post(NamedRoutes.checksPath(savedUrl.getId()));
+            assertThat(response.code()).isEqualTo(200);
         });
     }
 

@@ -10,10 +10,10 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
-public class UrlRepository extends BaseRepository {
+public class UrlsRepository extends BaseRepository {
 
     public static void save(Url url) throws SQLException {
-        var sql = "INSERT INTO url_checks (name, created_at) VALUES (?, ?)";
+        var sql = "INSERT INTO urls (name, created_at) VALUES (?, ?)";
         try (var conn = dataSource.getConnection();
             var stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             stmt.setString(1, url.getName());
@@ -30,15 +30,15 @@ public class UrlRepository extends BaseRepository {
         }
     }
 
-    public static Optional<Url> search(String name) throws SQLException {
+    public static Optional<Url> findByName(String name) throws SQLException {
         var sql = "SELECT * FROM urls WHERE name = ?";
         try (var connection = dataSource.getConnection();
              var stmt = connection.prepareStatement(sql)) {
             stmt.setString(1, name);
-            var resUrls = stmt.executeQuery();
-            if (resUrls.next()) {
-                var createdAt = resUrls.getTimestamp("created_at");
-                var id = resUrls.getLong("id");
+            var resultSet = stmt.executeQuery();
+            if (resultSet.next()) {
+                var createdAt = resultSet.getTimestamp("created_at");
+                var id = resultSet.getLong("id");
                 var url = new Url(name, createdAt);
                 url.setId(id);
                 return Optional.of(url);

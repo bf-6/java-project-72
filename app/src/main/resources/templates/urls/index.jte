@@ -24,6 +24,16 @@ content = @`
                             <tr>
                                 <td>${url.getId()}</td>
                                 <td><a href="${NamedRoutes.urlPath(url.getId())}">${url.getName()}</a></td>
+                            <td>
+                                @if(page.getLatestChecks().containsKey(url.getId()))
+                                    ${page.getLatestChecks().get(url.getId()).getCreatedAt().toString()}
+                                @endif
+                            </td>
+                            <td>
+                                @if(page.getLatestChecks().containsKey(url.getId()))
+                                    ${page.getLatestChecks().get(url.getId()).getStatusCode()}
+                                @endif
+                            </td>
                             </tr>
                         @endfor
                     @endif

@@ -4,7 +4,8 @@ import hexlet.code.dto.BasePage;
 import hexlet.code.dto.urls.UrlPage;
 import hexlet.code.dto.urls.UrlsPage;
 import hexlet.code.model.Url;
-import hexlet.code.repository.UrlRepository;
+import hexlet.code.repository.ChecksRepository;
+import hexlet.code.repository.UrlsRepository;
 import hexlet.code.util.NamedRoutes;
 import io.javalin.http.Context;
 import io.javalin.http.NotFoundResponse;
@@ -20,8 +21,9 @@ import static io.javalin.rendering.template.TemplateUtil.model;
 public class UrlController {
 
     public static void index(Context ctx) throws SQLException {
-        var listUrls = UrlRepository.getEntities();
-        var page = new UrlsPage(listUrls);
+        var listUrls = UrlsRepository.getEntities();
+        var listChecks = ChecksRepository.getUrlCheckMap();
+        var page = new UrlsPage(listUrls, listChecks);
         page.setFlash(ctx.consumeSessionAttribute("flash")); // ОТРАБОТКА ФЛЕШ СООБЩЕНИЙ
         page.setFlashType(ctx.consumeSessionAttribute("flash-type"));
         ctx.render("urls/index.jte", model("page", page));
@@ -29,9 +31,12 @@ public class UrlController {
 
     public static void show(Context ctx) throws SQLException {
         var id = ctx.pathParamAsClass("id", Long.class).get();
-        var url = UrlRepository.find(id)
+        var url = UrlsRepository.find(id)
                 .orElseThrow(() -> new NotFoundResponse("Entity with id = " + id + " not found"));
-        var page = new UrlPage(url);
+        var checks = ChecksRepository.getUrlChecks(id);
+        var page = new UrlPage(url, checks);
+        page.setFlash(ctx.consumeSessionAttribute("flash")); // ОТРАБОТКА ФЛЕШ СООБЩЕНИЙ
+        page.setFlashType(ctx.consumeSessionAttribute("flash-type"));
         ctx.render("urls/show.jte", model("page", page));
     }
 
@@ -53,9 +58,9 @@ public class UrlController {
 
             URL url = new URIBuilder().setScheme(protocol).setHost(host).setPort(port).build().toURL();
 
-            if (UrlRepository.search(String.valueOf(url)).isEmpty()) {
+            if (UrlsRepository.findByName(String.valueOf(url)).isEmpty()) {
                 var currentUrl = new Url(String.valueOf(url));
-                UrlRepository.save(currentUrl);
+                UrlsRepository.save(currentUrl);
             } else {
                 throw new IOException("Страница уже существует");
             }

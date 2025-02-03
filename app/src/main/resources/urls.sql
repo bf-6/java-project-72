@@ -17,4 +17,4 @@ CREATE TABLE url_checks (
     description TEXT,
     created_at TIMESTAMP,
     PRIMARY KEY (id)
-)
+);

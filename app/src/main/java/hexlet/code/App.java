@@ -5,6 +5,7 @@ import com.zaxxer.hikari.HikariDataSource;
 import gg.jte.ContentType;
 import gg.jte.TemplateEngine;
 import gg.jte.resolve.ResourceCodeResolver;
+import hexlet.code.controller.CheckController;
 import hexlet.code.controller.UrlController;
 import hexlet.code.repository.BaseRepository;
 import hexlet.code.util.NamedRoutes;
@@ -81,10 +82,7 @@ public class App {
 
         //-------------------------------------------------------------------------------
 
-        app.post("/urls/{id}/checks", ctx -> {
-            var id = ctx.pathParamAsClass("id", Long.class).get();
-            ctx.redirect(NamedRoutes.urlPath(id));
-        });
+        app.post(NamedRoutes.checksPath("{id}"), CheckController::create);
 
         //-------------------------------------------------------------------------------
 
