@@ -105,6 +105,7 @@ public class AppTest {
             Url savedUrl = UrlsRepository.findByName(mockWebServer.url("/").toString()).orElseThrow();
             var response = client.post(NamedRoutes.checksPath(savedUrl.getId()));
             assertThat(response.code()).isEqualTo(200);
+            assertThat(response.body().string()).contains("Example Domain");
         });
     }
 
