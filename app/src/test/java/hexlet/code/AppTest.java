@@ -80,6 +80,14 @@ public class AppTest {
             var response = client.post(NamedRoutes.urlsPath(), requestBody);
             assertThat(response.code()).isEqualTo(200);
             assertThat(response.body().string()).contains("https://example.edu");
+
+            response = client.get(NamedRoutes.urlsPath());
+            assertThat(response.code()).isEqualTo(200);
+            assertThat(response.body().string()).contains("https://example.edu");
+
+            response = client.get(NamedRoutes.urlPath(1L));
+            assertThat(response.code()).isEqualTo(200);
+            assertThat(response.body().string()).contains("https://example.edu");
         });
     }
 
@@ -105,7 +113,14 @@ public class AppTest {
             Url savedUrl = UrlsRepository.findByName(mockWebServer.url("/").toString()).orElseThrow();
             var response = client.post(NamedRoutes.checksPath(savedUrl.getId()));
             assertThat(response.code()).isEqualTo(200);
+
+            response = client.get(NamedRoutes.urlPath(1L));
+            assertThat(response.code()).isEqualTo(200);
             assertThat(response.body().string()).contains("Example Domain");
+
+            response = client.get(NamedRoutes.urlsPath());
+            assertThat(response.code()).isEqualTo(200);
+
         });
     }
 
