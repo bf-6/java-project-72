@@ -54,7 +54,7 @@ public class App {
         hikariConfig.setJdbcUrl(getUrl());
 
         var dataSource = new HikariDataSource(hikariConfig);
-        var sql = readResourceFile("urls.sql");
+        var sql = readResourceFile("schema.sql");
 
         log.info(sql);
         try (var connection = dataSource.getConnection();

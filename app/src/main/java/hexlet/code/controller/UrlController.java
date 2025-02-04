@@ -48,7 +48,7 @@ public class UrlController {
     }
 
     public static void create(Context ctx) {
-        var name = ctx.formParamAsClass("name", String.class).get();
+        var name = ctx.formParamAsClass("url", String.class).get();
 
         try {
             URL uri = new URI(name).toURL();

@@ -76,7 +76,7 @@ public class AppTest {
     @Test
     public void testCreateUrl() {
         JavalinTest.test(app, (server, client) -> {
-            var requestBody = "name=https://example.edu/";
+            var requestBody = "url=https://example.edu/";
             var response = client.post(NamedRoutes.urlsPath(), requestBody);
             assertThat(response.code()).isEqualTo(200);
             assertThat(response.body().string()).contains("https://example.edu");
