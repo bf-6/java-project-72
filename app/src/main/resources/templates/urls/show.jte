@@ -21,7 +21,7 @@ content = @`
                     </tr>
                     <tr>
                         <td>Дата создания</td>
-                        <td>${page.getUrl().getCreatedAt().toString()}</td>
+                        <td>${page.getUrl().getCreatedAt().format(page.getFormatter())}</td>
                     </tr>
                     </tbody>
                 </table>
@@ -62,7 +62,7 @@ content = @`
                                     ${check.getDescription()}
                                 </td>
                                 <td>
-                                    ${check.getCreatedAt().toString()}
+                                    ${check.getCreatedAt().format(page.getFormatter())}
                                 </td>
                             </tr>
                         @endfor

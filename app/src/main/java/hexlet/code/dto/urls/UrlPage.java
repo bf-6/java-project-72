@@ -6,6 +6,7 @@ import hexlet.code.model.UrlCheck;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @AllArgsConstructor
@@ -13,4 +14,10 @@ import java.util.List;
 public class UrlPage extends BasePage {
     private Url url;
     private List<UrlCheck> checks;
+    private DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm");
+
+    public UrlPage(Url url, List<UrlCheck> checks) {
+        this.url = url;
+        this.checks = checks;
+    }
 }

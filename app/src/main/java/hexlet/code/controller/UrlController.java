@@ -13,6 +13,7 @@ import org.apache.hc.core5.net.URIBuilder;
 
 import java.io.IOException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.sql.SQLException;
 
@@ -29,10 +30,20 @@ public class UrlController {
         ctx.render("urls/index.jte", model("page", page));
     }
 
-    public static void show(Context ctx) throws SQLException {
+    public static void show(Context ctx) {
         var id = ctx.pathParamAsClass("id", Long.class).get();
-        var url = UrlsRepository.find(id)
-                .orElseThrow(() -> new NotFoundResponse("Entity with id = " + id + " not found"));
+        Url url;
+
+        try {
+            url = UrlsRepository.find(id)
+                    .orElseThrow(() -> new NotFoundResponse("Страница не найдена"));
+        } catch (Exception e) {
+            ctx.sessionAttribute("flash", e.getMessage());
+            ctx.sessionAttribute("flash-type", "danger");
+            ctx.redirect(NamedRoutes.urlsPath());
+            return;
+        }
+
         var checks = ChecksRepository.getUrlChecks(id);
         var page = new UrlPage(url, checks);
         page.setFlash(ctx.consumeSessionAttribute("flash")); // ОТРАБОТКА ФЛЕШ СООБЩЕНИЙ
@@ -47,36 +58,43 @@ public class UrlController {
         ctx.render("urls/build.jte", model("page", page));
     }
 
-    public static void create(Context ctx) {
+    public static void create(Context ctx) throws IOException, SQLException, URISyntaxException {
         var name = ctx.formParamAsClass("url", String.class).get();
 
+        URL uri = null;
         try {
-            URL uri = new URI(name).toURL();
-            var protocol = uri.getProtocol();
-            var port = uri.getPort();
-            var host = uri.getHost();
+            uri = new URI(name).toURL();
+        } catch (Exception e) {
+            ctx.sessionAttribute("flash", "Некорректный URL");
+            ctx.sessionAttribute("flash-type", "danger");
+            ctx.redirect(NamedRoutes.buildPath());
+            return;
+        }
 
-            URL url = new URIBuilder().setScheme(protocol).setHost(host).setPort(port).build().toURL();
+        var protocol = uri.getProtocol();
+        var port = uri.getPort();
+        var host = uri.getHost();
 
+        URL url = new URIBuilder().setScheme(protocol).setHost(host).setPort(port).build().toURL();
+
+        try {
             if (UrlsRepository.findByName(String.valueOf(url)).isEmpty()) {
                 var currentUrl = new Url(String.valueOf(url));
                 UrlsRepository.save(currentUrl);
             } else {
                 throw new IOException("Страница уже существует");
             }
-            // ДОБАВЛЕНИЕ ФЛЕШ СООБЩЕНИЯ О ДОБАВЛЕННИ НОВОГО САЙТА
-            ctx.sessionAttribute("flash", "Страница успешно добавлена");
-            ctx.sessionAttribute("flash-type", "success");
-            ctx.redirect(NamedRoutes.urlsPath());
         } catch (IOException e) {
             ctx.sessionAttribute("flash", e.getMessage());
             ctx.sessionAttribute("flash-type", "info");
             ctx.redirect(NamedRoutes.urlsPath());
-        } catch (Exception e) {
-            ctx.sessionAttribute("flash", "Некорректный URL");
-            ctx.sessionAttribute("flash-type", "danger");
-            ctx.redirect(NamedRoutes.buildPath());
+            return;
         }
+
+        // ДОБАВЛЕНИЕ ФЛЕШ СООБЩЕНИЯ О ДОБАВЛЕННИ НОВОГО САЙТА
+        ctx.sessionAttribute("flash", "Страница успешно добавлена");
+        ctx.sessionAttribute("flash-type", "success");
+        ctx.redirect(NamedRoutes.urlsPath());
     }
 
 }

@@ -26,7 +26,7 @@ content = @`
                                 <td><a href="${NamedRoutes.urlPath(url.getId())}">${url.getName()}</a></td>
                             <td>
                                 @if(page.getLatestChecks().containsKey(url.getId()))
-                                    ${page.getLatestChecks().get(url.getId()).getCreatedAt().toString()}
+                                    ${page.getLatestChecks().get(url.getId()).getCreatedAt().format(page.getFormatter())}
                                 @endif
                             </td>
                             <td>

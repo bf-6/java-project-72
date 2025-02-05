@@ -12,8 +12,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -52,7 +50,6 @@ public class AppTest {
         JavalinTest.test(app, (server, client) -> {
             var response = client.get(NamedRoutes.mainPage());
             assertThat(response.code()).isEqualTo(200);
-            assert response.body() != null;
             assertThat(response.body().string()).contains("Анализатор страниц");
         });
     }
@@ -92,7 +89,7 @@ public class AppTest {
     }
 
     @Test
-    public void testSave() throws URISyntaxException, MalformedURLException, SQLException {
+    public void testSave() throws SQLException {
         var url = new Url("https://ru.hexlet.io");
         UrlsRepository.save(url);
 
@@ -109,12 +106,16 @@ public class AppTest {
         Url url = new Url(mockUrl);
         UrlsRepository.save(url);
 
+        // Получаем фактический ID после сохранения
+        Long savedUrlId = UrlsRepository.findByName(mockUrl)
+                .map(Url::getId)
+                .orElseThrow(() -> new IllegalStateException("URL не найден!"));
+
         JavalinTest.test(app, (server, client) -> {
-            Url savedUrl = UrlsRepository.findByName(mockWebServer.url("/").toString()).orElseThrow();
-            var response = client.post(NamedRoutes.checksPath(savedUrl.getId()));
+            var response = client.post(NamedRoutes.checksPath(savedUrlId));
             assertThat(response.code()).isEqualTo(200);
 
-            response = client.get(NamedRoutes.urlPath(1L));
+            response = client.get(NamedRoutes.urlPath(savedUrlId));
             assertThat(response.code()).isEqualTo(200);
             assertThat(response.body().string()).contains("Example Domain");
 

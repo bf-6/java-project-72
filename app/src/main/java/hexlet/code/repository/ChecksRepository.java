@@ -35,30 +35,6 @@ public class ChecksRepository extends BaseRepository {
         }
     }
 
-    public static List<UrlCheck> getEntities() throws SQLException {
-        var sql = "SELECT * FROM url_checks";
-        try (var conn = dataSource.getConnection();
-             var stmt = conn.prepareStatement(sql)) {
-            var resultSet = stmt.executeQuery();
-            var result = new ArrayList<UrlCheck>();
-            while (resultSet.next()) {
-                //url_id, status_code, h1, title, description, created_at
-                var id = resultSet.getLong("id");
-                var code = resultSet.getInt("status_code");
-                var title = resultSet.getString("title");
-                var h1 = resultSet.getString("h1");
-                var description = resultSet.getString("description");
-                var urlId = resultSet.getLong("url_id");
-                var createdAt = resultSet.getTimestamp("created_at");
-
-                var urlCheck = new UrlCheck(code, title, h1, description, urlId, createdAt);
-                urlCheck.setId(id);
-                result.add(urlCheck);
-            }
-            return result;
-        }
-    }
-
     public static List<UrlCheck> getUrlChecks(Long urlId) {
         List<UrlCheck> result = new ArrayList<>();
         var sql = "SELECT * FROM url_checks WHERE url_id = ? ORDER BY id DESC";
@@ -72,7 +48,7 @@ public class ChecksRepository extends BaseRepository {
                 var title = resultSet.getString("title");
                 var h1 = resultSet.getString("h1");
                 var description = resultSet.getString("description");
-                var createdAt = resultSet.getTimestamp("created_at");
+                var createdAt = resultSet.getTimestamp("created_at").toLocalDateTime();
                 var urlCheck = new UrlCheck(code, title, h1, description, urlId, createdAt);
                 urlCheck.setId(id);
                 result.add(urlCheck);
@@ -99,7 +75,7 @@ public class ChecksRepository extends BaseRepository {
                 var title = resultSet.getString("title");
                 var h1 = resultSet.getString("h1");
                 var description = resultSet.getString("description");
-                var createdAt = resultSet.getTimestamp("created_at");
+                var createdAt = resultSet.getTimestamp("created_at").toLocalDateTime();
                 var urlCheck = new UrlCheck(code, title, h1, description, urlId, createdAt);
                 result.put(urlId, urlCheck);
             }

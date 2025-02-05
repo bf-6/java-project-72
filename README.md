@@ -4,7 +4,6 @@
 
 ## Hexlet tests and linter status:
 
----
 
 [![Actions Status](https://github.com/bf-6/java-project-72/actions/workflows/hexlet-check.yml/badge.svg)](https://github.com/bf-6/java-project-72/actions)
 [![Java CI](https://github.com/bf-6/java-project-72/actions/workflows/main.yml/badge.svg)](https://github.com/bf-6/java-project-72/actions/workflows/main.yml)
@@ -13,7 +12,6 @@
 
 ## Деплой на Render
 
----
 
 https://java-page-analyzer-47up.onrender.com
 
@@ -21,7 +19,6 @@ https://java-page-analyzer-47up.onrender.com
 
 ### Для запуска проекта локально
 
----
 
 ```shell
 make install
