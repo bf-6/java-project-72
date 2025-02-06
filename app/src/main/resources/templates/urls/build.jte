@@ -5,8 +5,6 @@
 @template.layout.page(
 page = page,
 content = @`
-    <main class="flex-grow-1">
-        <section>
             <div class="container-fluid bg-dark p-5">
                 <div class="row">
                     <div class="col-md-10 col-lg-8 mx-auto text-white">
@@ -25,11 +23,9 @@ content = @`
                                 </div>
                             </div>
                         </form>
-                        <p class="mt-2 mb-0 text-muted">Пример: https://www.example.com</p>
+                        <p class="mt-2 mb-0 text-secondary">Пример: https://www.example.com</p>
                     </div>
                 </div>
             </div>
-        </section>
-    </main>
 `
 )
