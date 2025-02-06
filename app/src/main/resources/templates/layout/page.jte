@@ -14,6 +14,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
           integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
 </head>
+
 <body>
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
     <div class="container-fluid">
@@ -30,6 +31,8 @@
         </div>
     </div>
 </nav>
+
+
 @if(page != null && page.getFlash() != null && page.getFlashType() != null)
     @if(page.getFlashType().equals("info"))
         <div class="rounded-0 m-0 alert alert-dismissible fade show alert-info" role="alert">
@@ -45,8 +48,13 @@
         </div>
     @endif
 @endif
+
+<main class="flex-grow-1">
+    <section>
 ${content}
-<footer class="footer border-top py-3 mt-5 bg-light">
+    </section>
+</main>
+<footer class="fixed-bottom footer border-top py-3 mt-5 bg-light">
     <div class="container-xl">
         <div class="text-center">
             created by
@@ -55,5 +63,5 @@ ${content}
     </div>
 </footer>
 </body>
-</html>
 
+</html>

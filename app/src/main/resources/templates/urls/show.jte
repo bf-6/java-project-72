@@ -5,8 +5,6 @@
 @template.layout.page(
 page = page,
 content = @`
-    <main class="flex-grow-1">
-        <section>
             <div class="container-lg mt-5">
                 <h1>Сайт: ${page.getUrl().getName()}</h1>
                 <table class="table table-bordered table-hover mt-3">
@@ -70,7 +68,5 @@ content = @`
                     @endif
                 </table>
             </div>
-        </section>
-    </main>
 `
 )

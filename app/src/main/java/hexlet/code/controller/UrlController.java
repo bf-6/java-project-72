@@ -77,15 +77,11 @@ public class UrlController {
 
         URL url = new URIBuilder().setScheme(protocol).setHost(host).setPort(port).build().toURL();
 
-        try {
-            if (UrlsRepository.findByName(String.valueOf(url)).isEmpty()) {
-                var currentUrl = new Url(String.valueOf(url));
-                UrlsRepository.save(currentUrl);
-            } else {
-                throw new IOException("Страница уже существует");
-            }
-        } catch (IOException e) {
-            ctx.sessionAttribute("flash", e.getMessage());
+        if (UrlsRepository.findByName(String.valueOf(url)).isEmpty()) {
+            var currentUrl = new Url(String.valueOf(url));
+            UrlsRepository.save(currentUrl);
+        } else {
+            ctx.sessionAttribute("flash", "Страница уже существует");
             ctx.sessionAttribute("flash-type", "info");
             ctx.redirect(NamedRoutes.urlsPath());
             return;

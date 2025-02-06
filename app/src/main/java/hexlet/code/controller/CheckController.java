@@ -23,15 +23,8 @@ public class CheckController {
         var id = ctx.pathParamAsClass("id", Long.class).get();
 
         Url url;
-        try {
-            url = UrlsRepository.find(id)
-                    .orElseThrow(() -> new NotFoundResponse("Страница не найдена"));
-        } catch (Exception e) {
-            ctx.sessionAttribute("flash", e.getMessage());
-            ctx.sessionAttribute("flash-type", "danger");
-            ctx.redirect(NamedRoutes.urlsPath());
-            return;
-        }
+        url = UrlsRepository.find(id)
+                .orElseThrow(() -> new NotFoundResponse("Страница не найдена"));
 
         HttpResponse<String> response;
         try {
@@ -43,7 +36,16 @@ public class CheckController {
             return;
         }
 
-        Document document = Jsoup.parse(response.getBody());
+        Document document;
+        try {
+            document = Jsoup.parse(response.getBody());
+        } catch (Exception e) {
+            ctx.sessionAttribute("flash", "Произошла ошибка при проверке страницы: " + e.getMessage());
+            ctx.sessionAttribute("flash-type", "danger");
+            ctx.redirect(NamedRoutes.urlPath(url.getId()));
+            return;
+        }
+
         var code = response.getStatus();
 
         Element titleTag = document.selectFirst("title");
@@ -57,6 +59,7 @@ public class CheckController {
 
         var urlCheck = new UrlCheck(code, title, h1, description, id);
         ChecksRepository.save(urlCheck);
+
         ctx.sessionAttribute("flash", "Страница успешно проверена");
         ctx.sessionAttribute("flash-type", "success");
         ctx.redirect(NamedRoutes.urlPath(url.getId()));
